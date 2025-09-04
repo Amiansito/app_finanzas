@@ -4,13 +4,14 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const AuthForm = () => {
   const [isRegister, setIsRegister] = useState(false);
-  const [name, setName] = useState(""); // nuevo campo nombre
+  const [name, setName] = useState(""); 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,14 +20,17 @@ const AuthForm = () => {
     if (isRegister) {
       if (!name.trim()) {
         setMessage("El nombre es obligatorio");
+        setIsError(true);
         return;
       }
       if (password.length < 8) {
         setMessage("La contraseña debe tener al menos 8 caracteres");
+        setIsError(true);
         return;
       }
       if (password !== confirmPassword) {
         setMessage("Las contraseñas no coinciden");
+        setIsError(true);
         return;
       }
       // Registro
@@ -35,10 +39,13 @@ const AuthForm = () => {
           name,
           email,
           password,
+          password_confirmation: confirmPassword,
         });
         setMessage("Registro exitoso");
+        setIsError(false); 
       } catch (err) {
         setMessage(err.response?.data?.message || "Error en el registro");
+        setIsError(true); 
       }
     } else {
       // Login
@@ -48,8 +55,10 @@ const AuthForm = () => {
           password,
         });
         setMessage("Login exitoso");
+        setIsError(false); 
       } catch (err) {
         setMessage(err.response?.data?.message || "Error en el login");
+        setIsError(true); 
       }
     }
   };
@@ -136,7 +145,11 @@ const AuthForm = () => {
           </div>
         )}
 
-        {message && <p style={{ color: "red" }}>{message}</p>}
+        {message && (
+          <p style={{ color: isError ? "red" : "green" }}>
+            {message}
+          </p>
+        )}
 
         <button
           type="submit"
