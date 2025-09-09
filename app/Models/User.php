@@ -1,21 +1,27 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    // Campos que se pueden asignar masivamente
     protected $fillable = [
         'name',
         'email',
         'password',
     ];
 
-    // Ocultar datos sensibles al devolver en JSON
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    // Relación: un usuario tiene muchas transacciones
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
