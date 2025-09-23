@@ -5,27 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Transaction extends Model
+class Ingreso extends Model
 {
     use HasFactory;
 
-    // Campos que se pueden asignar de manera masiva
     protected $fillable = [
-        'user_id',
-        'categoria_id',
-        'tipo',
-        'monto',
         'descripcion',
+        'monto',
         'fecha',
+        'categoria_id',
     ];
 
-    // Relación con el modelo User (muchas transacciones pertenecen a un usuario)
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Relación con la categoría
     public function categoria()
     {
         return $this->belongsTo(Categoria::class);

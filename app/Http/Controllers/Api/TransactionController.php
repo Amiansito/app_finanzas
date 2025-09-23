@@ -3,38 +3,56 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Transaction;
 use Illuminate\Http\Request;
+use App\Models\Transaction;
 
 class TransactionController extends Controller
 {
     public function index()
     {
-        return response()->json(Transaction::all());
-    }
-
-    public function show($id)
-    {
-        return response()->json(Transaction::findOrFail($id));
+        return auth()->user()->transactions()->with('categoria')->get();
     }
 
     public function store(Request $request)
     {
-        $transaction = Transaction::create($request->all());
+        $request->validate([
+            'monto'        => 'required|numeric|min:0',
+            'tipo'         => 'required|in:ingreso,gasto',
+            'descripcion'  => 'nullable|string|max:255',
+            'fecha'        => 'required|date',
+            'categoria_id' => 'required|exists:categorias,id'
+        ]);
+
+        $transaction = auth()->user()->transactions()->create($request->all());
         return response()->json($transaction, 201);
     }
 
-    public function update(Request $request, $id)
+    public function show(Transaction $transaction)
     {
-        $transaction = Transaction::findOrFail($id);
-        $transaction->update($request->all());
-
+        $this->authorize('view', $transaction);
         return response()->json($transaction);
     }
 
-    public function destroy($id)
+    public function update(Request $request, Transaction $transaction)
     {
-        Transaction::destroy($id);
-        return response()->json(null, 204);
+        $this->authorize('update', $transaction);
+
+        $request->validate([
+            'monto'        => 'sometimes|required|numeric|min:0',
+            'tipo'         => 'sometimes|required|in:ingreso,gasto',
+            'descripcion'  => 'nullable|string|max:255',
+            'fecha'        => 'sometimes|required|date',
+            'categoria_id' => 'sometimes|required|exists:categorias,id'
+        ]);
+
+        $transaction->update($request->all());
+        return response()->json($transaction);
+    }
+
+    public function destroy(Transaction $transaction)
+    {
+        $this->authorize('delete', $transaction);
+        $transaction->delete();
+        return response()->json(['message' => 'Transacción eliminada']);
     }
 }
